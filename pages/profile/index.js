@@ -1,3 +1,4 @@
+import ContainerNotes from "@/containers/container-notes";
 import Layout from "@/layout";
 import Link from "next/link";
 
@@ -6,17 +7,17 @@ export default function Profile() {
     {
       id: 1,
       name: "Pace",
-      age: '24'
+      age: "24",
     },
     {
       id: 2,
       name: "Umar",
-      age: '25'
+      age: "25",
     },
     {
       id: 3,
       name: "Rehan",
-      age: '26'
+      age: "26",
     },
   ];
 
@@ -39,6 +40,7 @@ export default function Profile() {
           </li>
         ))}
       </ul>
+      <ContainerNotes />
     </Layout>
   );
 }

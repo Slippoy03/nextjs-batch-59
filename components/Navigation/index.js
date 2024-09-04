@@ -15,6 +15,9 @@ export default function Navigation() {
       <li>
         <Link href={"/profile"}>Profile</Link>
       </li>
+      <li>
+        <Link href={"/posts"}>Posts</Link>
+      </li>
       <hr />
     </ul>
   );
