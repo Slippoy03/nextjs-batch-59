@@ -1,16 +1,18 @@
+import { useMutation } from "@/hooks/useMutation";
+import { useQueries } from "@/hooks/useQueries";
 import {
-    Button,
-    Card,
-    Grid,
-    GridItem,
-    Heading,
-    Input,
-    Text,
-    Textarea,
+  Button,
+  Card,
+  Grid,
+  GridItem,
+  Heading,
+  Input,
+  Text,
+  Textarea,
 } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const LayoutComponent = dynamic(() => import("@/layout"));
 
@@ -18,37 +20,33 @@ export default function ContainerNotesEdit() {
   const router = useRouter();
   const { id } = router?.query;
   const [notes, setNotes] = useState();
+  useQueries(
+    { prefixUrl: !!id ? `https://service.pace-unv.cloud/api/notes/${id}` : "" },
+    {
+      onSuccess: ({ result }) => {
+        if (result) {
+          setNotes({
+            title: result?.data?.title,
+            description: result?.data?.description
+          })
+        }
+      },
+    }
+  );
+
+  const { mutate } = useMutation();
 
   const HandleSubmit = async () => {
-    try {
-      const response = await fetch(
-        `https://service.pace-unv.cloud/api/notes/update/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: notes?.title,
-            description: notes?.description,
-          }),
-        }
-      );
-      const result = await response.json();
-      if (result?.success) {
-        router.push("/notes");
-      }
-    } catch (error) {}
-  };
+    const response = await mutate({
+      url: `${process.env.NEXT_PUBLIC_URL_API}/notes/update/${id}`,
+      method: 'PATCH',
+      payload: notes,
+    });
 
-  useEffect(() => {
-    async function fetchingData() {
-      const res = await fetch(`https://service.pace-unv.cloud/api/notes/${id}`);
-      const listNotes = await res.json();
-      setNotes(listNotes?.data);
+    if (response?.success) {
+      router.push("/notes");
     }
-    fetchingData();
-  }, [id]);
+  };
 
   return (
     <>

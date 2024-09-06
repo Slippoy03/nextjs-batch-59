@@ -1,28 +1,29 @@
+import { useQueries } from "@/hooks/useQueries";
 import {
-    Box,
-    Button,
-    Card,
-    CardBody,
-    CardFooter,
-    CardHeader,
-    Flex,
-    Grid,
-    GridItem,
-    Heading,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    Text,
-    useDisclosure,
-    useToast,
+  Box,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Flex,
+  Grid,
+  GridItem,
+  Heading,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
 const LayoutComponent = dynamic(() => import("@/layout"));
 
@@ -31,23 +32,7 @@ export default function ContainerNotes() {
   const [notes, setNotes] = useState();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const fetchingData = useCallback(async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/notes`);
-      const listNotes = await res.json();
-      setNotes(listNotes);
-      toast({
-        title: "Fetching data success",
-        status: "success",
-        duration: 1000,
-        position: "top",
-      });
-    } catch (error) {
-      console.log("err => ", error);
-      setNotes([]);
-    }
-  }, []);
+  const { data: listNotes, fetchingData } = useQueries({ prefixUrl: `${process.env.NEXT_PUBLIC_URL_API}/notes`})
 
   const HandleDelete = async (id) => {
     try {
@@ -67,7 +52,7 @@ export default function ContainerNotes() {
         });
 
         setTimeout(() => {
-          fetchingData();
+          fetchingData({ url: `${process.env.NEXT_PUBLIC_URL_API}/notes` });
         }, 1000);
       }
     } catch (error) {
@@ -80,29 +65,25 @@ export default function ContainerNotes() {
     }
   };
 
-  useEffect(() => {
-    fetchingData();
-  }, [fetchingData]);
-
   return (
     <>
       <LayoutComponent metaTitle="Notes">
         <Box padding="5">
           <Flex justifyContent="end">
-            <Button colorScheme="teal" onClick={() => fetchingData()}>
+            <Button colorScheme="teal" onClick={() => fetchingData({ url: `${process.env.NEXT_PUBLIC_URL_API}/notes` })}>
               Reload Data
             </Button>
             <Button
               colorScheme="blue"
-              // onClick={() => router.push("/notes/add")}
-              onClick={() => onOpen()}
+              onClick={() => router.push("/notes/add")}
+              // onClick={() => onOpen()}
             >
               Add Notes
             </Button>
           </Flex>
           <Flex>
             <Grid templateColumns="repeat(3, 1fr)" gap={5}>
-              {notes?.data?.map((item) => (
+              {listNotes?.data?.map((item) => (
                 <GridItem key={item.id}>
                   <Card>
                     <CardHeader>
